@@ -34,18 +34,12 @@ function extraPropsToString(asset, extraProps) {
 }
 
 function getIntegrityProps(asset) {
-  return asset.integrity ? `integrity="${asset.integrity}" crossorigin="anonymous"` : ""
+  return asset.integrity ? ` integrity="${asset.integrity}" crossorigin="anonymous"` : ""
 }
 
 function assetToScriptTag(asset, extraProps) {
-  return (
-    `<script
-      async
-      data-chunk="${asset.chunk}"
-      src="${asset.url}"
-      ${getIntegrityProps(asset)}
-      ${extraPropsToString(asset, extraProps)}>
-    </script>`)
+  return (`<script async data-chunk="${asset.chunk}" src="${asset.url}"${getIntegrityProps(asset)}${
+    extraPropsToString(asset, extraProps)}></script>`)
 }
 
 function assetToScriptElement(asset, extraProps) {
