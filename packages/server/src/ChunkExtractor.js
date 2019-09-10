@@ -33,22 +33,39 @@ function extraPropsToString(asset, extraProps) {
   )
 }
 
+function getIntegrityProps(asset) {
+  return asset.integrity ? `integrity="${asset.integrity}" crossorigin="anonymous"` : ""
+}
+
 function assetToScriptTag(asset, extraProps) {
-  return `<script async data-chunk="${asset.chunk}" src="${
-    asset.url
-  }"${extraPropsToString(asset, extraProps)}></script>`
+  return (
+    `<script
+      async
+      data-chunk="${asset.chunk}"
+      src="${asset.url}"
+      ${getIntegrityProps(asset)}
+      ${extraPropsToString(asset, extraProps)}>
+    </script>`)
 }
 
 function assetToScriptElement(asset, extraProps) {
-  return (
-    <script
+  return asset.integrity
+    ? <script
+      key={asset.url}
+      async
+      data-chunk={asset.chunk}
+      src={asset.url}
+      integrity={asset.integrity}
+      crossOrigin="anonymous"
+      {...handleExtraProps(asset, extraProps)}
+    />
+    : <script
       key={asset.url}
       async
       data-chunk={asset.chunk}
       src={asset.url}
       {...handleExtraProps(asset, extraProps)}
     />
-  )
 }
 
 function assetToStyleString(asset, { inputFileSystem }) {
@@ -184,6 +201,11 @@ class ChunkExtractor {
     return chunkGroup
   }
 
+  getAssetIntegrity(fileName) {
+    const fileAsset = this.stats.assets.find(asset => asset.name === fileName);
+    return fileAsset ? fileAsset.integrity : undefined
+  }
+
   createChunkAsset({ filename, chunk, type, linkType }) {
     return {
       filename,
@@ -198,6 +220,7 @@ class ChunkExtractor {
       path: path.join(this.outputPath, filename),
       type,
       linkType,
+      integrity: this.getAssetIntegrity(filename),
     }
   }
 
