@@ -174,6 +174,7 @@ class ChunkExtractor {
     outputPath,
     publicPath,
     inputFileSystem = fs,
+    integrityEnabled = false,
   } = {}) {
     this.namespace = namespace
     this.stats = stats || smartRequire(statsFile)
@@ -183,6 +184,7 @@ class ChunkExtractor {
     this.entrypoints = Array.isArray(entrypoints) ? entrypoints : [entrypoints]
     this.chunks = []
     this.inputFileSystem = inputFileSystem
+    this.integrityEnabled = integrityEnabled
   }
 
   resolvePublicUrl(filename) {
@@ -214,7 +216,7 @@ class ChunkExtractor {
       path: path.join(this.outputPath, filename),
       type,
       linkType,
-      integrity: this.getAssetIntegrity(filename),
+      integrity: this.integrityEnabled ? this.getAssetIntegrity(filename) : undefined,
     }
   }
 
