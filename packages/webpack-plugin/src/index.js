@@ -8,8 +8,9 @@ class LoadablePlugin {
     path,
     writeToDisk,
     outputAsset = true,
+    integrity = false,
   } = {}) {
-    this.opts = { filename, writeToDisk, outputAsset, path }
+    this.opts = { filename, writeToDisk, outputAsset, path, integrity }
 
     // The Webpack compiler instance
     this.compiler = null
@@ -26,6 +27,12 @@ class LoadablePlugin {
       errorDetails: false,
       timings: false,
     })
+
+    if (this.opts.integrity) {
+      stats.assets = stats.assets.map(
+        asset => ({ ...asset, integrity: hookCompiler.assets[asset.name].integrity})
+      )
+    }
     const result = JSON.stringify(stats, null, 2)
 
     if (this.opts.outputAsset) {
@@ -71,6 +78,11 @@ class LoadablePlugin {
 
   apply(compiler) {
     this.compiler = compiler
+
+    if (this.opts.integrity) {
+      const SriPlugin = require('webpack-subresource-integrity')
+      new SriPlugin({ hashFuncNames: ['sha256', 'sha384'] }).apply(compiler)
+    }
 
     // Add a custom output.jsonpFunction: __LOADABLE_LOADED_CHUNKS__
     compiler.options.output.jsonpFunction = '__LOADABLE_LOADED_CHUNKS__'
